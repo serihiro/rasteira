@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/serihiro/rasteira.svg?branch=master)](https://travis-ci.org/serihiro/rasteira)
+
 # Rasteira
 
 - Rasteira is 
