@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/serihiro/rasteira.svg?branch=master)](https://travis-ci.org/serihiro/rasteira)
+[![Gem Version](https://badge.fury.io/rb/rasteira.svg)](https://badge.fury.io/rb/rasteira)
 
 # Rasteira
 
