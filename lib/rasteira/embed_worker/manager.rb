@@ -5,6 +5,7 @@ module Rasteira
 
       def initialize
         @job_pool = Array.new
+        @thread_pool = Array.new
         @mutex = Mutex.new
       end
       
