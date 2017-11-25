@@ -2,23 +2,26 @@ module Rasteira
   module Core
     class Job
       attr_reader :worker_name, :worker_file_path, :args, :status
-      
+
       STATUSES = {
         ready: 0,
         in_process: 1,
         finished: 2,
         failed: 3
       }.freeze
-    
-      def initialize(worker_name, worker_file_path, *args)
-        @worker_file_path = File.expand_path(worker_file_path, Dir.pwd)
-        unless File.exists?(@worker_file_path)
-          raise ArgumentError.new("#{@worker_file_path} could not be found")
+
+      def initialize(worker_name, options = {})
+        if !options[:worker_file_path].nil?
+          @worker_file_path = File.expand_path(options[:worker_file_path], options[:current_directory] || Dir.pwd)
+          unless File.exists?(@worker_file_path)
+            raise ArgumentError.new("#{@worker_file_path} could not be found")
+          end
+
+          require(@worker_file_path)
         end
-      
-        require(@worker_file_path)
+
         @worker_name = worker_name
-        @args = args
+        @args = options[:args]
         @status = STATUSES[:ready]
       end
     
