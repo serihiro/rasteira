@@ -22,7 +22,7 @@ RSpec.describe Rasteira::Core::Job do
   end
 
   describe '.new' do
-    subject { Rasteira::Core::Job.new(worker_name, worker_file_path, args) }
+    subject { Rasteira::Core::Job.new(worker_name, worker_file_path: worker_file_path, args: args) }
     
     context 'with existing worker_file_path' do
       let(:worker_name) { 'HelloWorker' }
@@ -46,7 +46,7 @@ RSpec.describe Rasteira::Core::Job do
   end
 
   describe '#start!' do
-    subject { Rasteira::Core::Job.new(worker_name, worker_file_path, *args).start! }
+    subject { Rasteira::Core::Job.new(worker_name, worker_file_path: worker_file_path, args: args).start! }
     let(:worker_name) { 'HelloWorker' }
     let(:worker_file_path) { @hello_worker_file.path }
     let(:args) { ['tarou', 'jirou'] }
@@ -57,7 +57,7 @@ RSpec.describe Rasteira::Core::Job do
   end
   
   describe '#worker' do
-    subject { Rasteira::Core::Job.new(worker_name, worker_file_path, *args).worker }
+    subject { Rasteira::Core::Job.new(worker_name, worker_file_path: worker_file_path, args: args).worker }
     let(:worker_name) { 'HelloWorker' }
     let(:worker_file_path) { @hello_worker_file.path }
     let(:args) { ['tarou', 'jirou'] }

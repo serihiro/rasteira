@@ -38,15 +38,27 @@ RSpec.describe Rasteira::EmbedWorker::Manager do
     before :each do
       # mock
       class Rasteira::Core::Job
-        def initialize(_worker_name, _wrker_file_path, *_args)
+        def initialize(_worker_name, _options = {})
         end
       end
     end
     let(:manager) { Rasteira::EmbedWorker::Manager.new }
-    subject { manager.enqueue_job!('worker_name', 'worker_path') }
     
-    it 'increase @job_pool count' do
-      expect { subject }.to change { manager.job_pool.size }.from(0).to(1)
+    context 'with worker_path' do
+      subject { manager.enqueue_job!('worker_name', worker_path: 'worker_path') }
+  
+      it 'increase @job_pool count' do
+        expect { subject }.to change { manager.job_pool.size }.from(0).to(1)
+      end
+    end
+    
+    
+    context 'without worker_path' do
+      subject { manager.enqueue_job!('worker_name') }
+  
+      it 'increase @job_pool count' do
+        expect { subject }.to change { manager.job_pool.size }.from(0).to(1)
+      end
     end
   end
   

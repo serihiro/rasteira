@@ -42,7 +42,7 @@ And start Embed Worker Manager and enqueue a job.
 
 ```ruby
 manager = Rasteira::EmbedWorker::Manager.run
-manager.enqueue_job!('HelloWorker', 'example/hello_worker.rb', 'serihiro')
+manager.enqueue_job!('HelloWorker', worker_file_path: 'example/hello_worker.rb', args: ['serihiro', 'hogetarou'])
 ```
 
 ## Development
