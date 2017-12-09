@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 module Rasteira
   module Core
+    # Job class that is executed by rasteira.
     class Job
       attr_reader :worker_name, :worker_file_path, :args, :status
 
@@ -11,10 +14,10 @@ module Rasteira
       }.freeze
 
       def initialize(worker_name, options = {})
-        if !options[:worker_file_path].nil?
+        unless options[:worker_file_path].nil?
           @worker_file_path = File.expand_path(options[:worker_file_path], options[:current_directory] || Dir.pwd)
-          unless File.exists?(@worker_file_path)
-            raise ArgumentError.new("#{@worker_file_path} could not be found")
+          unless File.exist?(@worker_file_path)
+            raise ArgumentError, "#{@worker_file_path} could not be found"
           end
 
           require(@worker_file_path)
@@ -24,7 +27,7 @@ module Rasteira
         @args = options[:args]
         @status = STATUSES[:ready]
       end
-    
+
       def start!
         @status = STATUSES[:in_process]
         begin
@@ -35,7 +38,7 @@ module Rasteira
           raise e
         end
       end
-    
+
       def worker
         @worker ||= Object.const_get("::#{@worker_name}").new
       end

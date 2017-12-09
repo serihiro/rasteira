@@ -1,14 +1,17 @@
+# frozen_string_literal: true
+
 module Rasteira
   module EmbedWorker
+    # Manager class that manages the thread pool and executes jobs.
     class Manager
       attr_reader :job_pool
 
       def initialize
-        @job_pool = Array.new
-        @thread_pool = Array.new
+        @job_pool = []
+        @thread_pool = []
         @mutex = Mutex.new
       end
-      
+
       # Create manager instance and run
       # @return [Rasteira::EmbedWorker::Manager] an instance of a running manager
       def self.run
@@ -17,21 +20,21 @@ module Rasteira
         this
       end
 
-      # TODO to be specifiable
+      # TODO: to be specifiable
       MIN_THREAD_SIZE = 5
 
       # Create thread pool and start all threads
       # @return [nil]
       def run
-        @thread_pool = MIN_THREAD_SIZE.times.map do
+        @thread_pool = Array.new(MIN_THREAD_SIZE).map do
           Thread.start { worker_thread_process }
         end
-        
+
         @thread_manager = Thread.start do
           loop do
             @mutex.synchronize do
-              @thread_pool.reject! { |thread| !thread.alive? }
-              
+              @thread_pool.select!(&:alive?)
+
               (@thread_pool.size...MIN_THREAD_SIZE).each do
                 @thread_pool << Thread.start { worker_thread_process }
               end
@@ -54,14 +57,14 @@ module Rasteira
           @job_pool << ::Rasteira::Core::Job.new(worker_name, options)
         end
       end
-      
+
       # Kill all worker threads
       # @return nil
       def shutdown_workers!
         @thread_pool.each(&:kill)
         @thread_manager.kill
       end
-      
+
       # Return current worker threads id and status hashes
       # @return [Array<Hash>]
       def worker_statuses
@@ -69,7 +72,7 @@ module Rasteira
           { id: thread.object_id, status: thread.status }
         end
       end
-      
+
       private
 
       def worker_thread_process
@@ -85,7 +88,7 @@ module Rasteira
               sleep(3)
             end
           rescue => e
-            # TODO logging
+            # TODO: logging
             puts e.inspect
           end
         end

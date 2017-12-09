@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # To test with bin/console, execute like this:
 #
 # 2.4.0 :001 > m = Rasteira::EmbedWorker::Manager.run
