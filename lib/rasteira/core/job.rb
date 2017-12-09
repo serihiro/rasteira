@@ -4,7 +4,7 @@ module Rasteira
   module Core
     # Job class that is executed by rasteira.
     class Job
-      attr_reader :worker_name, :worker_file_path, :args, :status
+      attr_reader :worker_class, :worker_file_path, :args, :status
 
       STATUSES = {
         ready: 0,
@@ -13,7 +13,15 @@ module Rasteira
         failed: 3
       }.freeze
 
-      def initialize(worker_name, options = {})
+      # The constructor of Rasteira::Core::Job
+      # @param [String, Class] worker_class The name or class of worker class or
+      # @param [Hash] options
+      # @option options [String] :worker_file_path The file path of worker_class.
+      #   If worker_file_path is set, Rasteira tries to load worker_class from worker_file_path
+      # @option options [String] :current_directory The root path of worker_file_path.
+      #   If current_directory and worker_file_path are set, Rasteira searches worker_file_path
+      #   with current_directory as current directory.
+      def initialize(worker_class, options = {})
         unless options[:worker_file_path].nil?
           @worker_file_path = File.expand_path(options[:worker_file_path], options[:current_directory] || Dir.pwd)
           unless File.exist?(@worker_file_path)
@@ -23,7 +31,7 @@ module Rasteira
           require(@worker_file_path)
         end
 
-        @worker_name = worker_name
+        @worker_class = worker_class
         @args = options[:args]
         @status = STATUSES[:ready]
       end
@@ -40,7 +48,11 @@ module Rasteira
       end
 
       def worker
-        @worker ||= Object.const_get("::#{@worker_name}").new
+        @worker ||= if @worker_class.is_a?(String)
+                      Object.const_get("::#{@worker_class}").new
+                    else
+                      @worker_class.new
+                    end
       end
     end
   end

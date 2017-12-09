@@ -25,32 +25,59 @@ RSpec.describe Rasteira::Core::Job do
   end
 
   describe '.new' do
-    subject { Rasteira::Core::Job.new(worker_name, worker_file_path: worker_file_path, args: args) }
+    context 'with `worker_file_path` option' do
+      subject { Rasteira::Core::Job.new(worker_class, worker_file_path: worker_file_path, args: args) }
 
-    context 'with existing worker_file_path' do
-      let(:worker_name) { 'HelloWorker' }
-      let(:worker_file_path) { @hello_worker_file.path }
-      let(:args) { %w(tarou jirou) }
+      context 'with existing worker_file_path' do
+        let(:worker_class) { 'HelloWorker' }
+        let(:worker_file_path) { @hello_worker_file.path }
+        let(:args) { %w(tarou jirou) }
 
-      it 'create instance' do
-        expect(subject.class).to eq Rasteira::Core::Job
+        it 'create instance' do
+          expect(subject.class).to eq Rasteira::Core::Job
+        end
+      end
+
+      context 'with not existing worker_file_path' do
+        let(:worker_class) { 'HelloWorker' }
+        let(:worker_file_path) { SecureRandom.urlsafe_base64(64) }
+        let(:args) { %w(tarou jirou) }
+
+        it 'raises ArgumentError' do
+          expect { subject.class }.to raise_error(ArgumentError)
+        end
       end
     end
 
-    context 'with not existing worker_file_path' do
-      let(:worker_name) { 'HelloWorker' }
-      let(:worker_file_path) { SecureRandom.urlsafe_base64(64) }
-      let(:args) { %w(tarou jirou) }
+    context 'without `worker_file_path` option' do
+      subject { Rasteira::Core::Job.new(worker_class, args: args) }
+      before :each do
+        require(@hello_worker_file.path)
+      end
 
-      it 'raises ArgumentError' do
-        expect { subject.class }.to raise_error(ArgumentError)
+      context 'and `worker_class` is String' do
+        let(:worker_class) { 'HelloWorker' }
+        let(:args) { %w(tarou jirou) }
+
+        it 'create instance' do
+          expect(subject.class).to eq Rasteira::Core::Job
+        end
+      end
+
+      context 'and `worker_class` is class' do
+        let(:worker_class) { HelloWorker }
+        let(:args) { %w(tarou jirou) }
+
+        it 'create instance' do
+          expect(subject.class).to eq Rasteira::Core::Job
+        end
       end
     end
   end
 
   describe '#start!' do
-    subject { Rasteira::Core::Job.new(worker_name, worker_file_path: worker_file_path, args: args).start! }
-    let(:worker_name) { 'HelloWorker' }
+    subject { Rasteira::Core::Job.new(worker_class, worker_file_path: worker_file_path, args: args).start! }
+    let(:worker_class) { 'HelloWorker' }
     let(:worker_file_path) { @hello_worker_file.path }
     let(:args) { %w(tarou jirou) }
 
@@ -60,13 +87,40 @@ RSpec.describe Rasteira::Core::Job do
   end
 
   describe '#worker' do
-    subject { Rasteira::Core::Job.new(worker_name, worker_file_path: worker_file_path, args: args).worker }
-    let(:worker_name) { 'HelloWorker' }
-    let(:worker_file_path) { @hello_worker_file.path }
-    let(:args) { %w(tarou jirou) }
+    context 'with existing worker_file_path' do
+      subject { Rasteira::Core::Job.new(worker_class, worker_file_path: worker_file_path, args: args).worker }
+      let(:worker_class) { 'HelloWorker' }
+      let(:worker_file_path) { @hello_worker_file.path }
+      let(:args) { %w(tarou jirou) }
 
-    it 'returns HelloWorker object' do
-      expect(subject.class).to eq HelloWorker
+      it 'returns HelloWorker object' do
+        expect(subject.class).to eq HelloWorker
+      end
+    end
+
+    context 'without `worker_file_path` option' do
+      subject { Rasteira::Core::Job.new(worker_class, args: args).worker }
+      before :each do
+        require(@hello_worker_file.path)
+      end
+
+      context 'and `worker_class` is String' do
+        let(:worker_class) { 'HelloWorker' }
+        let(:args) { %w(tarou jirou) }
+
+        it 'returns HelloWorker object' do
+          expect(subject.class).to eq HelloWorker
+        end
+      end
+
+      context 'and `worker_class` is class' do
+        let(:worker_class) { HelloWorker }
+        let(:args) { %w(tarou jirou) }
+
+        it 'returns HelloWorker object' do
+          expect(subject.class).to eq HelloWorker
+        end
+      end
     end
   end
 end
