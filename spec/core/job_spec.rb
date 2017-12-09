@@ -8,7 +8,7 @@ RSpec.describe Rasteira::Core::Job do
   before :all do
     @hello_worker_file = Tempfile.new(%w(worker .rb))
 
-    class_string = <<~'EOS'
+    class_string = <<-'EOS'
       class HelloWorker
         def perform(name1, name2)
           "Hello, #{name1} and #{name2}"
