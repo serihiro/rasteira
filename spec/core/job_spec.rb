@@ -84,6 +84,31 @@ RSpec.describe Rasteira::Core::Job do
     it 'does not raise_error' do
       expect { subject }.not_to raise_error
     end
+
+    context 'with single array arg' do
+      before :each do
+        @hello_worker_file2 = Tempfile.new(%w(worker2 .rb))
+
+        class_string = <<-'EOS'
+          class HelloWorker2
+            def perform(names)
+              "Hello, #{names[0]} and #{names[1]}"
+            end
+          end
+        EOS
+
+        @hello_worker_file2.print(class_string)
+        @hello_worker_file2.open
+      end
+
+      let(:worker_class) { 'HelloWorker2' }
+      let(:worker_file_path) { @hello_worker_file2.path }
+      let(:args) { %w(tarou jirou) }
+
+      it 'does not raise_error' do
+        expect { subject }.not_to raise_error
+      end
+    end
   end
 
   describe '#worker' do

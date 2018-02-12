@@ -39,7 +39,7 @@ module Rasteira
       def start!
         @status = STATUSES[:in_process]
         begin
-          worker.perform(*@args)
+          worker.method(:perform).arity > 1 ? worker.perform(*@args) : worker.perform(@args)
           @status = STATUSES[:finished]
         rescue => e
           @status = STATUSES[:failed]
